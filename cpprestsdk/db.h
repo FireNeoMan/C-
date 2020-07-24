@@ -103,7 +103,7 @@ public:
 			return 1;
 		return 0;
 	}
-
+	//
 	//修改对局  赢了i为1，输了i为-1  需要传入一个健全的user，信息要都有
 	void change(User user, int i)
 	{
