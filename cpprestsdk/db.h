@@ -47,7 +47,9 @@ public:
 	};
 	//新建用户  所有信息都需要
 	void makeAccount(User user) {
-		string temp = "INSERT INTO user VALUES ('" + user.id + "','" + user.password + "','"  + user.email + "',0,0,0)";
+		string temp = "INSERT INTO user VALUES ('" + user.id + "','" + user.password 
+			+ "','" + user.sex + "'," + to_string(user.age) + ",'" + user.birth
+			+ "','" + user.email + "',"  + to_string(user.level) + ",0,0,0)";
 		char sql[100];
 		strcpy(sql, temp.c_str());
 		mysql_query(pConn, sql);
@@ -64,10 +66,14 @@ public:
 		MYSQL_ROW row;
 		while (row = mysql_fetch_row(result)) {
 			user.password = row[1];
-			user.email = row[2];
-			user.win = atof(row[3]);
-			user.lose = atof(row[4]);
-			user.winrate = atof(row[5]);
+			user.sex = row[2];
+			user.age = atoi(row[3]);
+			user.birth = row[4];
+			user.email = row[5];
+			user.level = atoi(row[6]);
+			user.win = atof(row[7]);
+			user.lose = atof(row[8]);
+			user.winrate = atof(row[9]);
 		}
 		mysql_free_result(result);
 		mysql_close(pConn);

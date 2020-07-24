@@ -13,7 +13,11 @@ class User
 public:
 	string id;   // 昵称
 	string password;  // 密码
+	string sex;   //性别
+	int age;   //年龄
+	string birth;   //生日
 	string email;   //邮箱
+	int level;   //级别
 	int win;   //赢了几局
 	int lose;   //输了几局
 	float winrate;   ///胜率

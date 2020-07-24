@@ -160,8 +160,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="D:\ClionProject\try\main.cpp" />
-    <ClCompile Include="db.cpp" />
-    <ClCompile Include="User.cpp" />
     <ClCompile Include="源.cpp" />
   </ItemGroup>
   <ItemGroup>

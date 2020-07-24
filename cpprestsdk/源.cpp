@@ -110,10 +110,20 @@ CommandHandler::CommandHandler(utility::string_t url) : m_listener(url)
 {
 	m_listener.support(methods::GET, bind(&CommandHandler::handle_get_or_post, this, placeholders::_1));
 	m_listener.support(methods::POST, bind(&CommandHandler::handle_get_or_post, this, placeholders::_1));
+	m_listener.support(methods::OPTIONS, std::bind(&CommandHandler::handle_get_or_post, this, std::placeholders::_1));
+
 }
 //处理请求
 void CommandHandler::handle_get_or_post(http_request message)
 {
+	//处理跨域请求
+	http_response rep;
+	rep.headers().add(U("Access-Control-Allow-Origin"), U("*"));
+	rep.headers().add(U("Access-Control-Request-Method"), U("GET,POST,OPTIONS"));
+	rep.headers().add(U("Access-Control-Allow-Credentials"), U("true"));
+	rep.headers().add(U("Access-Control-Allow-Headers"), U("Content-Type,Access-Token,x-requested-with,Authorization"));
+	rep.set_status_code(status_codes::OK);
+	//自己瞎写的
 	//请求调用的方法
 	ucout << "Method: " << message.method() << endl;
 	//请求调用的url
@@ -125,12 +135,13 @@ void CommandHandler::handle_get_or_post(http_request message)
 	string_t querytemp = http::uri::decode(message.relative_uri().query());
 	string query = WStringToString(querytemp);
 	//存储分割后的字符串
-	vector<string> a(3);
+	vector<string> a(6);
 	//单刀多置开关
 	if (url == "/test")
 	{
 		cout << query;
-		message.reply(status_codes::OK, "0");
+		rep.set_body("0");
+		message.reply(rep);
 	}
 	//新建用户  所有信息都需要
 	else if (url == "/makeAccount")
@@ -141,11 +152,16 @@ void CommandHandler::handle_get_or_post(http_request message)
 		//赋值
 		user.id = FindPreStrOf(a[0],'=');
 		user.password = FindPreStrOf(a[1], '=');
-		user.email = FindPreStrOf(a[2], '=');
+		user.sex = FindPreStrOf(a[2], '=');
+		user.age = stoi(FindPreStrOf(a[3], '='));
+		user.birth = FindPreStrOf(a[4], '=');
+		user.email = FindPreStrOf(a[5], '=');
+		user.level = 0;//string转int
 
 		dbuser db1;
 		db1.makeAccount(user);
-		message.reply(status_codes::OK, "0");
+		rep.set_body("0");
+		message.reply(rep);
 	}
 	//获取某个用户信息,根据用户id获取,返回一个用户
 	else if (url == "/getUser")
@@ -158,10 +174,12 @@ void CommandHandler::handle_get_or_post(http_request message)
 		dbuser db1;
 		user=db1.getUser(user);
 		//cout<<"\""
-		string result = "{\"id\":\""+user.id+"\", \"password\" :\""+user.password+ "\", \"email\" :\"" 
-			+ user.email + "\", \"win\" :\"" + to_string(user.win) + "\", \"lose\" :\"" + to_string(user.lose)
-			+ "\", \"winrate\" :\"" + to_string(user.winrate) + "\"] }";
-		message.reply(status_codes::OK, result);
+		string result = "{\"id\":\""+user.id+"\", \"password\" :\""+user.password
+			+ "\", \"sex\" :\""+ user.sex + "\", \"age\" :\"" + to_string(user.age) + "\", \"birth\" :\"" + user.birth
+			+ "\", \"email\" :\"" + user.email + "\", \"level\" :\"" + to_string(user.level)
+			+ "\", \"win\" :\"" + to_string(user.win)+ "\", \"lose\" :\"" + to_string(user.lose)+ "\", \"winrate\" :\"" + to_string(user.winrate) + "\" }";
+		rep.set_body(result);
+		message.reply(rep);
 	}
 	//登录校验   无此账号返回-1，密码错误返回0，正确返回1
 	else if (url == "/login")
@@ -176,7 +194,8 @@ void CommandHandler::handle_get_or_post(http_request message)
 
 		dbuser db1;
 		int result = db1.login(user.id, user.password);
-		message.reply(status_codes::OK, to_string(result));
+		rep.set_body(to_string(result));
+		message.reply(rep);
 	}
 	//修改对局  赢了i为1，输了i为-1  需要传入一个健全的user，信息要都有
 	else if (url == "/change")
@@ -194,11 +213,13 @@ void CommandHandler::handle_get_or_post(http_request message)
 		user = db1.getUser(user);
 		dbuser db2;
 		db2.change(user, i);
-		message.reply(status_codes::OK, "0");
+		rep.set_body("0");
+		message.reply(rep);
 	}
 	else
 	{
-		message.reply(status_codes::OK, "Not Real url");
+		rep.set_body("Not Real url");
+		message.reply(rep);
 	}
 };
 
