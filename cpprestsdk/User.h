@@ -23,7 +23,7 @@ public:
 	float winrate;   ///Ê¤ÂÊ
 	User()
 	{
-
+		//
     }
 };
 
